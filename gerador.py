@@ -1,3 +1,11 @@
+"""
+LICENSE
+
+Essa porra eh GPL.
+Qualquer uma, caraio.
+"""
+
+
 def le_times ():
     times = []
     nome_time = "foo"
@@ -27,20 +35,26 @@ def espalha (times):
     rodadas = []
     for i in range (num_rodadas):
         rodadas.append ("")
+    
+    mandante = True
 
     for i in range (num_times):
         r = (2 * i) % num_rodadas
         for j in range (i + 1, num_times):
             while r in flags[i]:
                 r = (r + 1) % num_rodadas
-            p = times[i] + " vs " + times[j] + "\n"
+            if mandante:
+                p = times[i] + " vs " + times[j] + "\n"
+            else:
+                p = times[j] + " vs " + times[i] + "\n"
             rodadas[r] += p
             flags[i].append (r)
             flags[j].append (r)
+            mandante = not mandante
 
-    print "\n\n----------------------------------------------"
+    print "\n\n-----------------------------------------------"
     print   "\nTABELA!!! AEEEEE LOLOLOLOL!!!!!1111111oneoneone"
-    print     "----------------------------------------------\n\n"
+    print     "-----------------------------------------------\n\n"
 
     for i in rodadas:
         print "\nRodada: ", rodadas.index (i)
