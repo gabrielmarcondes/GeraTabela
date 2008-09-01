@@ -5,20 +5,17 @@ Essa porra eh GPL.
 Qualquer uma, caraio.
 """
 
+import re
 
-def le_times ():
-    times = []
-    nome_time = "foo"
-    print "Insira nomes dos times. Digite \"fim\" para parar:\n"
-    while nome_time != "fim":
-        nome_time = raw_input ()
-        if nome_time != "fim":
-            times.append (nome_time)
-    num_times = len (times)
-    return times
+def valida_lista (times):
+    valid_name = re.compile (r'\s*\w', re.L)
+    nova_lista = []
+    for t in times:
+        if re.match (valid_name, t):
+            nova_lista.append (t)
+    return nova_lista
 
-
-def espalha (times, returno):
+def espalha (times):
 
     num_times = len (times)
     num_rodadas = num_times - 1
@@ -57,26 +54,5 @@ def espalha (times, returno):
             flags[i].append (r)
             flags[j].append (r)
             mandante = not mandante
-
-    print "\n\n-----------------------------------------------"
-    print   "\nTABELA!!! AEEEEE LOLOLOLOL!!!!!1111111oneoneone"
-    print     "-----------------------------------------------\n\n"
-
-    for i in rodadas_turno:
-        print "\nRodada: ", rodadas_turno.index (i) + 1
-        s = i.split ("\n")
-        for j in s:
-            print j
     
-    if returno:
-        for i in rodadas_returno:
-            print "\nRodada: ", rodadas_returno.index (i) + num_rodadas + 1
-            s = i.split ("\n")
-            for j in s:
-                print j        
-        
-
-
-if __name__ == "__main__":
-    times = le_times ()
-    espalha (times, True)
+    return [rodadas_turno, rodadas_returno]
