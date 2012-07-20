@@ -6,6 +6,7 @@ Qualquer uma, caraio.
 """
 
 import re
+from math import log
 
 def valida_lista (times):
     valid_name = re.compile (r'\s*\w', re.L)
@@ -14,6 +15,11 @@ def valida_lista (times):
         if re.match (valid_name, t):
             nova_lista.append (t)
     return nova_lista
+
+def mata_mata(times):
+    if not log(len(times), 2) == 0:
+        return False
+
 
 def espalha (times):
 

@@ -11,7 +11,6 @@ class Janela ():
     botao_gera = None
     botao_salva = None
     times = None
-    texto_explicativo = None
     
     def __init__ (self):
         self.arvore = gtk.glade.XML ('window.glade')
@@ -33,13 +32,6 @@ class Janela ():
 
     def quit (self, widget, data):
         gtk.main_quit ()
-        
-    def foca_texto (self, widget, data):
-        if self.texto_explicativo:
-            buff = self.times.get_buffer ()
-            buff.set_text ("")
-            self.times.set_buffer (buff)
-            self.texto_explicativo = False
         
     def gera_clicked (self, widget):
         texto = self.times.get_buffer ()
@@ -87,6 +79,17 @@ class Janela ():
 
     def cancela_salva_clicked (self, widget):
         self.janela_salvar.hide ()
+
+    def apaga_clicked (self, widget):
+        self.times.get_buffer ().set_text ("")
+
+    def sobre_clicked (self, widget):
+        sobre = "Gerador de Tabelas 0.1"
+        sobre += "\n\nCopyright 2008 Gabriel Marcondes"
+        sobre += "\ngabrielgeraldo at gmail.com"
+        sobre += "\n\nEste software eh software livre, liberado sob a GPL."
+        sobre += "\nPara mais detalhes, consulte /usr/share/common-licenses/GPL-3"
+        self.times.get_buffer ().set_text (sobre)
 
 
 if __name__ == "__main__":
