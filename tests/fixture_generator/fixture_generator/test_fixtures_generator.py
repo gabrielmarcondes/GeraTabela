@@ -1,5 +1,3 @@
-from typing import Iterable
-
 import pytest
 
 from fixture_generator import (
@@ -7,6 +5,7 @@ from fixture_generator import (
     InvalidInputException,
     NotValidatedException,
 )
+from fixture_generator.fixtures import Turn
 
 
 class TestValidate:
@@ -28,16 +27,6 @@ class TestGenerate:
     eight_names = list('ABCDEFGH')
     nine_names = list('ABCDEFGHI')
 
-    def _mirror_match(self, match: str):
-        home, away = match.split(' vs ')
-        return '{} vs {}'.format(away, home)
-
-    def _mirror_round(self, r: Iterable[str]):
-        return [
-            self._mirror_match(m)
-            for m in r
-        ]
-
     def test_when_not_validated_raises_exception(self):
         generator = FixturesGenerator(self.eight_names)
 
@@ -51,6 +40,16 @@ class TestGenerate:
 
         assert len(generated.keys()) == 2
 
+    def test_returns_dict_with_two_turns(self):
+        generator = FixturesGenerator(self.eight_names)
+        generator.validate()
+        generated = generator.generate()
+
+        assert (
+            isinstance(generated['first'], Turn)
+            and isinstance(generated['second'], Turn)
+        )
+
     @pytest.mark.parametrize('name', list('ABCDEFGH'))
     def test_team_shows_once_per_round_in_a_robin_with_even_teams(self, name):
         generator = FixturesGenerator(self.eight_names)
@@ -59,12 +58,12 @@ class TestGenerate:
 
         first_robin = generated['first']
         occurrences = [
-            robin_round.count(name)
+            name in robin_round.all_clubs()
             for robin_round
-            in first_robin
+            in first_robin.rounds.values()
         ]
 
-        assert occurrences == [1 for _ in range(7)]
+        assert all(occurrences)
 
     @pytest.mark.parametrize('name', list('ABCDEFGHI'))
     def test_team_misses_one_round_in_a_robin_with_odd_teams(self, name):
@@ -74,34 +73,9 @@ class TestGenerate:
 
         first_robin = generated['first']
         occurrences = [
-            robin_round.count(name)
+            name in robin_round.all_clubs()
             for robin_round
-            in first_robin
+            in first_robin.rounds.values()
         ]
 
-        assert sorted(occurrences) == [0, *[1 for _ in range(8)]]
-
-    def test_second_robin_has_mirrored_matches_of_first_robin(self):
-        generator = FixturesGenerator(self.eight_names)
-        generator.validate()
-        generated = generator.generate()
-
-        first_robin = [
-            r.split('\n')[:-1]
-            for r
-            in generated['first']
-        ]
-
-        second_robin = [
-            r.split('\n')[:-1]
-            for r
-            in generated['second']
-        ]
-
-        mirrored_second_robin = [
-            self._mirror_round(r)
-            for r
-            in second_robin
-        ]
-
-        assert first_robin == mirrored_second_robin
+        assert sorted(occurrences) == [0, *[True for _ in range(8)]]
