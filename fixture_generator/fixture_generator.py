@@ -47,7 +47,7 @@ class FixturesGenerator:
             raise NotValidatedException
 
         rounds_count = self._get_round_count()
-        first_turn_rounds, second_turn_rounds = Turn(), Turn()
+        turn1, turn2 = Turn(), Turn()
 
         home_game = True
         for name_index, name in enumerate(self._validated_names):
@@ -55,21 +55,20 @@ class FixturesGenerator:
 
             for opponent in self._validated_names[name_index + 1:]:
 
-                while self._club_has_played_round(name, first_turn_rounds, round_index):
+                while self._club_has_played_round(name, turn1, round_index):
                     round_index = (round_index + 1) % rounds_count
 
-                home = Match(
+                match = Match(
                     home=name if home_game else opponent,
                     away=opponent if home_game else name,
                 )
-                away = home.mirror()
 
-                first_turn_rounds.get_round(round_index).add_match(home)
-                second_turn_rounds.get_round(round_index).add_match(away)
+                turn1.get_round(round_index).add_match(match)
+                turn2.get_round(round_index).add_match(match.mirror())
 
                 home_game = not home_game
 
         return {
-            'first': first_turn_rounds,
-            'second': second_turn_rounds,
+            'first': turn1,
+            'second': turn2,
         }

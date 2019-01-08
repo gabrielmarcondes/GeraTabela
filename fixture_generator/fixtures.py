@@ -62,3 +62,12 @@ class Turn:
             self.rounds[round_index] = Round()
 
         return self.rounds[round_index]
+
+    def mirror_turn(self) -> Turn:
+        other_turn = Turn()
+        for ri, r in self.rounds.items():
+            other_round = Round()
+            for match in r.get_matches():
+                other_round.add_match(match.mirror())
+            other_turn.rounds[ri] = other_round
+        return other_turn
