@@ -2,8 +2,11 @@ from typing import Iterable
 
 import pytest
 
-from fixture_generator import FixturesGenerator
-from fixture_generator.fixture_generator import InvalidInputException
+from fixture_generator import (
+    FixturesGenerator,
+    InvalidInputException,
+    NotValidatedException,
+)
 
 
 class TestValidate:
@@ -22,8 +25,8 @@ class TestValidate:
 
 
 class TestGenerate:
-    four_names = ['A', 'B', 'C', 'D']
-    five_names = ['A', 'B', 'C', 'D', 'E']
+    eight_names = list('ABCDEFGH')
+    nine_names = list('ABCDEFGHI')
 
     def _mirror_match(self, match: str):
         home, away = match.split(' vs ')
@@ -35,43 +38,51 @@ class TestGenerate:
             for m in r
         ]
 
+    def test_when_not_validated_raises_exception(self):
+        generator = FixturesGenerator(self.eight_names)
+
+        with pytest.raises(NotValidatedException):
+            generator.generate()
+
     def test_returns_dict_with_two_round_robins(self):
-        generator = FixturesGenerator(self.four_names)
+        generator = FixturesGenerator(self.eight_names)
         generator.validate()
         generated = generator.generate()
 
         assert len(generated.keys()) == 2
 
-    def test_team_a_shows_once_per_round_in_a_robin_with_even_teams(self):
-        generator = FixturesGenerator(self.four_names)
+    @pytest.mark.parametrize('name', list('ABCDEFGH'))
+    def test_team_shows_once_per_round_in_a_robin_with_even_teams(self, name):
+        generator = FixturesGenerator(self.eight_names)
         generator.validate()
         generated = generator.generate()
 
         first_robin = generated['first']
         occurrences = [
-            robin_round.count('A')
+            robin_round.count(name)
             for robin_round
             in first_robin
         ]
 
-        assert occurrences == [1, 1, 1]
+        assert occurrences == [1 for _ in range(7)]
 
-    def test_team_a_misses_one_round_in_a_robin_with_odd_teams(self):
-        generator = FixturesGenerator(self.five_names)
+    @pytest.mark.parametrize('name', list('ABCDEFGHI'))
+    def test_team_misses_one_round_in_a_robin_with_odd_teams(self, name):
+        generator = FixturesGenerator(self.nine_names)
         generator.validate()
         generated = generator.generate()
 
         first_robin = generated['first']
         occurrences = [
-            robin_round.count('A')
+            robin_round.count(name)
             for robin_round
             in first_robin
         ]
 
-        assert sorted(occurrences) == [0, 1, 1, 1, 1]
+        assert sorted(occurrences) == [0, *[1 for _ in range(8)]]
 
     def test_second_robin_has_mirrored_matches_of_first_robin(self):
-        generator = FixturesGenerator(self.four_names)
+        generator = FixturesGenerator(self.eight_names)
         generator.validate()
         generated = generator.generate()
 
